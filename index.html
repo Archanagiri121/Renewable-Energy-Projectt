@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset=utf-8 />
+    <title>RENEWABLE ENERGY</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css?family=Raleway|Ubuntu" rel="stylesheet">"
+    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: rgb(17, 5, 73);
+            font-family: 'Times New Roman', Times, serif;
+            font-style: rgb(233, 230, 44);
+            font-size: xx-large;
+            align: center;
+        }
+        
+        header {
+            padding: 0.5px 10%;
+        }
+        
+        h1 {
+            text-align: center;
+            display: inline-block;
+            margin-top: 0;
+            margin-bottom: 0;
+            margin-right: 20px;
+            font-family: 'Ubuntu', sans-serif;
+            color: rgb(232, 237, 88);
+            font-size: 2em;
+            font-weight: bolder;
+        }
+        
+        h2 {
+            color: #f2e93d;
+            font-size: 1.5em;
+            font-style: initial;
+            align: "center";
+        }
+        
+        #map {
+            width: 80%;
+            height: 540px;
+            margin: 10px auto;
+        }
+        
+        footer {
+            padding: 6px 10%;
+            width: 80%;
+        }
+        
+        p {
+            text-align: center;
+            margin-right: 20px;
+            font-size: 1em;
+            font-style: bold;
+            color: rgb(239, 233, 39);
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp; <u>RENEWABLE &nbsp; ENERGY &nbsp; PROJECT</u> </h1>
+        <h2> &nbsp; &nbsp;
+            <U>TOPIC: </U> UNITED STATES RENEWABLE ENERGIES
+        </h2>
+
+    </header>
+
+    <div id='map'></div>
+
+    <footer>
+        <p> This Map is authored by Danielle Bargovic</p>
+        <p>Natural gas, the "clean energy" source, is also one that partners well with other energy.
+            <producers class="br"></producers>
+            Displayed are the two "dirtier" yet dominant natural gas partners; coal and petroleum. The coal/natural gas and the petroleum/natural gas partnerships are represented by the blue and green circles respectively. It becomes apparent, given the geographic
+            distribution, that both partnerships are predominantly east coast energy insitutions.</p>
+    </footer>
+    <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
+    <script src="data/power-plants.js"></script>
+    <script>
+        var map = L.map('map', {
+            center: [36, -94],
+            zoom: 4,
+        });
+
+        var tiles = L.tileLayer('http://map1.vis.earthdata.nasa.gov/wmts-webmerc/VIIRS_CityLights_2012/default/{time}/{tilematrixset}{maxZoom}/{z}/{y}/{x}.{format}', {
+            attribution: 'Imagery provided by services from the Global Imagery Browse Services (GIBS), operated by the NASA/GSFC/Earth Science Data and Information System (<a href="https://earthdata.nasa.gov">ESDIS</a>) with funding provided by NASA/HQ.',
+            minZoom: 1,
+            maxZoom: 8,
+            format: 'jpg',
+            time: '',
+
+            tilematrixset: 'GoogleMapsCompatible_Level'
+        });
+
+        tiles.addTo(map);
+
+
+        plants.features.sort(function(a, b) {
+            return b.properties.capacity_mw - a.properties.capacity_mw;
+        });
+
+        var natGasHydroLayer = L.geoJson(plants, {
+            pointToLayer: function(feature, latlng) {
+                return L.circleMarker(latlng);
+            },
+            filter: function(feature) {
+                if (feature.properties.fuel_source["Natural Gas"] && feature.properties.fuel_source["Hydro"]) {
+                    return feature;
+                }
+            },
+            style: function(feature) {
+                return {
+                    color: '#ea19c4',
+                    fillColor: '#ea19c4',
+                    weight: 3,
+                    stroke: 1,
+                    fillOpacity: .9,
+                    radius: getRadius(feature.properties.fuel_source["Natural Gas"] && feature.properties.fuel_source["Hydro"])
+                }
+            }
+        }).addTo(map);
+
+        var natGasSolarLayer = L.geoJson(plants, {
+            pointToLayer: function(feature, latlng) {
+                return L.circleMarker(latlng);
+            },
+            filter: function(feature) {
+                if (feature.properties.fuel_source["Natural Gas"] && feature.properties.fuel_source["Solar"]) {
+                    return feature;
+                }
+            },
+            style: function(feature) {
+                return {
+                    color: '#19eabd',
+                    fillColor: '#19eabd',
+                    weight: 3,
+                    stroke: 1,
+                    fillOpacity: .9,
+                    radius: getRadius(feature.properties.fuel_source["Natural Gas"] && feature.properties.fuel_source["Solar"])
+                }
+            }
+        }).addTo(map);
+
+        var natGasPetroLayer = L.geoJson(plants, {
+            pointToLayer: function(feature, latlng) {
+                return L.circleMarker(latlng);
+            },
+
+            filter: function(feature) {
+                if (feature.properties.fuel_source["Natural Gas"] && feature.properties.fuel_source["Petroleum"]) {
+                    return feature;
+                }
+            },
+
+            style: function(feature) {
+                return {
+                    color: '#3fea18', //Green
+                    fillColor: '#3fea18',
+                    weight: 3,
+                    stroke: 1,
+                    fillOpacity: .6,
+                    radius: getRadius(feature.properties.fuel_source["Natural Gas"] && feature.properties.fuel_source["Petroleum"])
+                }
+            },
+
+            onEachFeature: function(feature, layer) {
+                layer.on('mouseover', function() {
+                    layer.setStyle({
+                        fillColor: 'orange'
+                    });
+                });
+
+                layer.on('mouseout', function() {
+                    layer.setStyle({
+                        fillColor: '#3fea18'
+                    });
+                });
+
+
+                var toolTipString = '<b>' + layer.feature.properties.plant_name + ' </b><br />' +
+                    layer.feature.properties.capacity_mw + " MW";
+
+
+                var fuelSources = layer.feature.properties.fuel_source;
+
+
+                for (var fuel in fuelSources) {
+                    toolTipString += '<br /><b>' + fuel + '</b>: ' + fuelSources[fuel] + " MW"
+                }
+
+
+                layer.bindTooltip(toolTipString);
+            },
+        }).addTo(map);
+
+
+        var windCoalLayer = L.geoJson(plants, {
+            pointToLayer: function(feature, latlng) {
+                return L.circleMarker(latlng);
+            },
+
+            filter: function(feature) {
+                if (feature.properties.fuel_source["Natural Gas"] && feature.properties.fuel_source["Coal"]) {
+                    return feature;
+                }
+            },
+
+            style: function(feature) {
+                return {
+                    color: '#0a6ed8',
+                    fillColor: '#0a6ed8',
+                    weight: 3,
+                    stroke: 1,
+                    fillOpacity: .6,
+                    radius: getRadius(feature.properties.fuel_source["Natural Gas"] && feature.properties.fuel_source["Coal"])
+                }
+            },
+
+
+            onEachFeature: function(feature, layer) {
+                layer.on('mouseover', function() {
+                    layer.setStyle({
+                        fillColor: 'orange'
+                    });
+                });
+
+                layer.on('mouseout', function() {
+                    layer.setStyle({
+                        fillColor: '#0a6ed8'
+                    });
+                });
+
+
+                var toolTipString = '<b>' + layer.feature.properties.plant_name + ' </b><br />' +
+                    layer.feature.properties.capacity_mw + " MW";
+
+
+                var fuelSources = layer.feature.properties.fuel_source;
+
+
+                for (var fuel in fuelSources) {
+                    toolTipString += '<br /><b>' + fuel + '</b>: ' + fuelSources[fuel] + " MW"
+                }
+
+
+                layer.bindTooltip(toolTipString);
+            },
+
+        }).addTo(map);
+
+        function getRadius(area) {
+            var radius = Math.sqrt(area / Math.PI);
+            return radius * .6;
+        }
+    </script>
+
+</body>
+
+</html>
